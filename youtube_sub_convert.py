@@ -5,8 +5,8 @@
 # description       : python script to turn youtube
 # opml sub file into text file for rss reader newsboat.
 # author            :Gavin Lyons
-# date              :17/08/2017
-# version           : 1.0
+# date              :2019
+# version           : 1.1
 # web               :https://github.com/gavinlyonsrepo/
 # mail              :glyons66@hotmail.com
 # python_version    : 3.6
@@ -20,7 +20,7 @@ import sys
 # =============Functions==============
 # metadata
 __VERSION__ = "1.1"
-__URL__ = "https://github.com/gavinlyonsrepo/miscellaneous/tree/master/python/youtube_sub_convert"
+__URL__ = "https://github.com/gavinlyonsrepo/opml_convert_RSS"
 
 # ================== FUNCTIONS ===============================
 def opml_txt(text):
@@ -84,6 +84,8 @@ def process_cmd_arguments():
         filename = (sys.argv[2])
         return filename
     
+    print("Error: no arguments entered , use -h option for help")
+    quit()
     
 # =====================MAIN===============================
 if __name__ == '__main__':
