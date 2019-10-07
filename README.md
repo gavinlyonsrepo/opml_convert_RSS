@@ -24,7 +24,7 @@ Output.txt file in following format:
 
 [url] ~"[video_title]" [tag]
 
-https://www.youtube.com/feeds/videos.xml?channel_id=UCI999ua  "~Python Training byBader"  youtube
+https://www.youtube.com/feeds/videos.xml?channel_id=UCI999ua  "~Python Training by Bader"  youtube
 
 Where tag = youtube
 
@@ -57,6 +57,9 @@ optional arguments:
 3.   -f FILE     inputfile xml file , fullpath and/or filename
 
 
+Exmaples files
+--------------------
+Example input xml and output txt files are available in Documents folder
 
 Copyright
 -------------------
