@@ -13,6 +13,7 @@ Converts the opml(Xml) file of a youtube user subscriptions provided by youtube,
 into a text file which can added to RSS reader setup file 
 file, like newsboat for example. Thus converting your youtube subscriptions,
 into a group of tagged RSS feeds.
+Example input xml and output txt files are available in Documents folder
 
 **Input:**
 
@@ -56,10 +57,6 @@ optional arguments:
 2.  -v          Print version and quit
 3.   -f FILE     inputfile xml file , fullpath and/or filename
 
-
-Exmaples files
---------------------
-Example input xml and output txt files are available in Documents folder
 
 Copyright
 -------------------
