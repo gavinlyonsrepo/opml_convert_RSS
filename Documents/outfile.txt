@@ -1,0 +1,6 @@
+https://www.youtube.com/feeds/videos.xml?channel_id=UC8Ob-HnnmhlgSv5Vs_i32TQ  "~Ralph S Bacon"  youtube
+https://www.youtube.com/feeds/videos.xml?channel_id=UC2DjFE7Xf11URZqWBigcVOQ  "~EEVblog"  youtube
+https://www.youtube.com/feeds/videos.xml?channel_id=UCAPR27YUyxmgwm3Wc2WSHLw  "~Chris Were"  youtube
+https://www.youtube.com/feeds/videos.xml?channel_id=UCfY8sl5Q6VKndz0nLaGygPw  "~TheRaspberryPiGuy"  youtube
+https://www.youtube.com/feeds/videos.xml?channel_id=UCbiGcwDWZjz05njNPrJU7jA  "~ExplainingComputers"  youtube
+https://www.youtube.com/feeds/videos.xml?channel_id=UCfMxbH6WR35780HqCw7eDiA  "~Gaven MacDonald"  youtube
