@@ -4,15 +4,6 @@ Overview
 * Description: Command line python utility , converts opml(xml) to RSS.
 * Author: Gavin Lyons.
 * Software: python 3.6.8
-
-Table of contents
----------------------------
-
-  * [Overview](#overview)
-  * [Table of contents](#table-of-contents)
-  * [Description](#Description)
-  * [Usage](#usage)
-  * [Copyright](#copyright)
   
 Description
 ---------
@@ -44,21 +35,26 @@ Where tag default = youtube, A custom tag can be added using -t option.
 Usage
 --------
 
-1. Download the python program, opml_convert_RSS.py.
+NOTE: Currently only works on Linux.
+
+1. Download the python program, opml_convert_rss.py.
 2. In a web browser navigate to subscription manager page of youtube.
 https://www.youtube.com/subscription_manager
 3. At bottom of page click on "Export to RSS readers -- Export subscriptions".
 4. This subscription_manager file will be downloaded into an opml(xml) file.
 5. Run program in terminal. 
-	* $ python3 opml_convert_RSS.py -i infile -o outfile -t tech
+	* $ python3 opml_convert_rss.py -i infile -o outfile -t tech
 	* -i infile is the full path and/or filename of input xml file.
-	* -0 outfile is the full path and/or filename of output txt file.
+	* -o outfile is the full path and/or filename of output txt file.
 	* -t tech is a custom tag.
 	* -t and -o options can be omitted and defaults used if user wants.
-	
+6. Example input in terminal $python3 opml_convert_rss.py -i ~/Downloads/te -o test -t testtag
+
+output:
+
 ![SS](https://raw.githubusercontent.com/gavinlyonsrepo/opml_convert_RSS/master/screenshots/opml.png)
 
-7. Copy the output txt file into RSS reader setup files(eg newsboat)
+7. Copy the output file into RSS reader setup files(eg newsboat)
  
  
 **Arguments**
@@ -68,11 +64,11 @@ usage: opml_convert_rss.py [-h] [-v] [-i INFILE] [-o OUTFILE] [-t TAGNAME]
 URL help at: https://github.com/gavinlyonsrepo/opml_convert_RSS
 
 optional arguments:
-  -h, --help  show this help message and exit
-  -v          Print version and quit
-  -i INFILE   input filename and/or full path
-  -o OUTFILE  output filename and/or full path, default ./outfile.txt
-  -t TAGNAME  tagname, default = youtube
+	*  -h, --help  show this help message and exit
+	*  -v          Print version and quit
+	*  -i INFILE   input filename and/or full path
+	*  -o OUTFILE  output filename and/or full path, default ./outfile.txt
+	*  -t TAGNAME  tagname, default = youtube
 
 
 Copyright
