@@ -6,7 +6,7 @@
 # opml sub file into text file for rss reader newsboat.
 # author            : Gavin Lyons
 # date              : OCT  2019
-# version           : 1.1
+# version           : 1.2
 # web               : See __URL__
 # mail              : glyons66@hotmail.com
 # python_version    : 3.6.8
@@ -15,10 +15,11 @@
 # Import the system modules needed to run
 from xml.etree import ElementTree
 import argparse
+from sys import platform
 
 # =============Functions==============
 # metadata
-__VERSION__ = "1.1"
+__VERSION__ = "1.2"
 __URL__ = "https://github.com/gavinlyonsrepo/opml_convert_RSS"
 
 
@@ -103,29 +104,32 @@ def process_cmd_arguments():
 def msg_func(myprocess, mytext):
     """NAME : msg_func
     DESCRIPTION :prints to screen
-    prints line, text and anykey prompts,
+    prints line, text.
     INPUTS : $1 process name $2 text input
     PROCESS :[1]  print line 
     [2] print text  "green , red ,blue "
+    NOTE: only works for linux , for windows just prints text as asni escape codes 
+    did not work in powershell
     """
+    if platform == 'win32':
+        print(mytext)
+    else:
+        # colours for print
+        blue = '\033[94m'
+        red = '\033[91m'
+        bold = '\033[1m'
+        end = '\033[0m'
+        if myprocess == "line":  # print blue horizontal line of =
+            print(blue + "="*80 + end)
 
-    # colours for print
-    blue = '\033[94m'
-    red = '\033[91m'
-    bold = '\033[1m'
-    end = '\033[0m'
+        if myprocess == "red":  # print red text
+            print(red + mytext + end)
 
-    if myprocess == "line":  # print blue horizontal line of =
-        print(blue + "="*80 + end)
+        if myprocess == "blue":  # print blue text
+            print(blue + mytext + end)
 
-    if myprocess == "red":  # print red text
-        print(red + mytext + end)
-
-    if myprocess == "blue":  # print blue text
-        print(blue + mytext + end)
-
-    if myprocess == "bold":  # print bold text
-        print(bold + mytext + end)
+        if myprocess == "bold":  # print bold text
+            print(bold + mytext + end)
 
 
 # =====================MAIN===============================

@@ -36,8 +36,6 @@ Where tag default = youtube, A custom tag can be added using -t option.
 Usage
 --------
 
-NOTE: Currently only works on Linux.
-
 1. Download the python program, opml_convert_rss.py.
 2. In a web browser navigate to subscription manager page of youtube.
 https://www.youtube.com/subscription_manager
@@ -74,3 +72,4 @@ optional arguments:
 * -o OUTFILE  output filename and/or full path, default ./outfile.txt
 * -t TAGNAME  tagname, default = youtube
 
+NOTE: Works in windows powershell but without Colour text
