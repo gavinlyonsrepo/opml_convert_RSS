@@ -3,56 +3,83 @@
 # =======================HEADER=======================================
 # title             : youtube_sub_convert.py
 # description       : python script to turn youtube
-# opml sub file into text file for rss reader newsboat.
+# opml sub file or JSON  into text file for rss reader newsboat.
 # author            : Gavin Lyons
 # date              : OCT  2019
-# version           : 1.2
+# version           : 1.3-3
 # web               : See __URL__
 # mail              : glyons66@hotmail.com
-# python_version    : 3.6.8
+# python_version    : 3.8.5
 
 # ==========================IMPORTS======================
 # Import the system modules needed to run
+import os
 from xml.etree import ElementTree
 import argparse
+import json
 from sys import platform
 
 # =============Functions==============
 # metadata
-__VERSION__ = "1.2"
+__VERSION__ = "1.3"
 __URL__ = "https://github.com/gavinlyonsrepo/opml_convert_RSS"
 
 
 # ================== FUNCTIONS ===============================
 def opml_txt(text):
     """ function to turn opml(xml) file into textfile two parts
-    parse the input and create output"""
+    parse the input and create output
+    Stage 1 Parse the input file, json or xml
+    Stage 2 Create the output file , txt
+    """
+    
     msg_func("bold", "Start in main")
     urls = []
     texts = []
     infilename, outfilename, tagname = process_cmd_arguments()
-
-#  Parse the input file, Stage 1
+    ext = os.path.splitext(infilename)[-1].lower()
+    
+   #Parse the input file, json or xml, Stage 1
     try:
-        with open(infilename, 'rt') as inputfile:
-            tree = ElementTree.parse(inputfile)
-        for node in tree.findall('.//outline'):
-            url = node.attrib.get('xmlUrl')
-            if url:
-                urls.append(url)
+        if ext == ".xml":
+            with open(infilename, 'rt') as inputfile:
+                tree = ElementTree.parse(inputfile)
+            for node in tree.findall('.//outline'):
+                url = node.attrib.get('xmlUrl')
+                if url:
+                    urls.append(url)
 
-        for node in tree.findall('.//outline'):
-            text = node.attrib.get('text')
-            if text:
-                texts.append(text)
+            for node in tree.findall('.//outline'):
+                text = node.attrib.get('text')
+                if text:
+                    texts.append(text)
 
-        texts.pop(0)
+            texts.pop(0)
+            
+        elif ext == ".json":
+            
+            with open(infilename, 'rt') as inputfile:
+                data = json.load(inputfile)
 
+            for mychannel in data:
+                url = mychannel['snippet']['resourceId']['channelId']
+                if  url:
+                        urls.append("https://www.youtube.com/feeds/videos.xml?channel_id="+ url)
+                   
+                text = mychannel['snippet']['title']
+                   
+                if text:
+                    texts.append(text)
+            
+        else:
+            raise Exception("unknown extension")
+            quit()
+        
     except Exception as error:
         msg_func("red", "Error: with input file:  {} = {}".format(infilename, error))
         quit()
     else:
-        print("Input file {} parsing completed.".format(infilename))
+      print("Input file {} parsing completed.".format(infilename))
 
 
 # Create the output file , Stage 2

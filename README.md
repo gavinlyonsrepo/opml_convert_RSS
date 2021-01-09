@@ -10,16 +10,17 @@ Description
 ---------
 
 Command line python utility, 
-Converts the opml(Xml) file of a youtube user subscriptions provided by youtube, 
+Converts the opml(Xml) file or JSON file of a youtube user subscriptions provided by youtube, 
 into a text file which can added to RSS reader setup file
 file, like newsboat for example. Thus converting your youtube subscriptions,
 into a group of tagged RSS feeds. 
-Example input xml and output txt files are available in Documents folder
+Example input JSON and xml and output txt files are available in Documents folder
 The user can select input file path, output file path and custom tag.
 
 **Input:**
 
-opml(xml) file provided by user on command prompt using -i option.
+1. opml(xml) file provided by user on command prompt using -i option.
+2. JSON file  provided by user on command prompt using -i option.
 
 **Output:**
 
@@ -37,25 +38,40 @@ Usage
 --------
 
 1. Download the python program, opml_convert_rss.py.
-2. In a web browser navigate to subscription manager page of youtube.
+
+2. Get the data XML or JSON , two different methods
+
+XML: (NOTE: Youtube removed  this service in Late 2020, not known if coming back)
+
+* In a web browser navigate to subscription manager page of youtube.
 https://www.youtube.com/subscription_manager
-3. At bottom of page click on "Export to RSS readers -- Export subscriptions".
-4. This subscription_manager file will be downloaded into an opml(xml) file.
-5. Run program in terminal. 
+* At bottom of page click on "Export to RSS readers -- Export subscriptions".
+* This subscription_manager file will be downloaded into an opml(xml) file.
+
+JSON:
+
+* There is a service in google called takeout at https://takeout.google.com/
+It lets you download your data.
+* Select the youtube account
+* Select only youtube data
+* Select only youtube subs.
+* Download the data into a JSON file 
+
+3. Run program in terminal. 
 
 * $ python3 opml_convert_rss.py -i infile -o outfile -t tech
-* -i infile is the full path and/or filename of input xml file.
+* -i infile is the full path and/or filename of input XML or JSON file.
 * -o outfile is the full path and/or filename of output txt file.
 * -t tech is a custom tag.
 * -t and -o options can be omitted and defaults used if user wants.
 
-6. Example input in terminal $python3 opml_convert_rss.py -i ~/Downloads/te -o test -t testtag
+4. Example input in terminal $python3 opml_convert_rss.py -i ~/Downloads/te -o test -t testtag
 
 output:
 
 ![SS](https://raw.githubusercontent.com/gavinlyonsrepo/opml_convert_RSS/master/screenshots/opml.png)
 
-7. Copy the output file into RSS reader setup files(eg newsboat)
+5. Copy the output file into RSS reader setup files(eg newsboat)
  
  
 **Arguments**
