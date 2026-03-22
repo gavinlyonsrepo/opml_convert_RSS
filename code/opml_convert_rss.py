@@ -1,170 +1,186 @@
 #!/usr/bin/env python3
-"""python script to turn youtube opml sub file into text file for rss reader"""
-# =======================HEADER=======================================
-# title             : youtube_sub_convert.py
-# description       : python script to turn youtube
-# opml sub file or JSON  into text file for rss reader newsboat.
-# author            : Gavin Lyons
-# date              : OCT  2019
-# version           : 1.3-3
-# web               : See __URL__
-# mail              : glyons66@hotmail.com
-# python_version    : 3.8.5
+"""
+Python script to convert YouTube OPML subscription file or JSON export
+into a text file suitable for RSS readers (e.g. newsboat).
 
-# ==========================IMPORTS======================
-# Import the system modules needed to run
+Author: Gavin Lyons
+URL:    https://github.com/gavinlyonsrepo/opml_convert_RSS
+"""
 import os
-from xml.etree import ElementTree
-import argparse
+import sys
 import json
-from sys import platform
+import argparse
+from xml.etree import ElementTree
 
-# =============Functions==============
 # metadata
 __VERSION__ = "1.3"
 __URL__ = "https://github.com/gavinlyonsrepo/opml_convert_RSS"
 
 
-# ================== FUNCTIONS ===============================
-def opml_txt(text):
-    """ function to turn opml(xml) file into textfile two parts
-    parse the input and create output
-    Stage 1 Parse the input file, json or xml
-    Stage 2 Create the output file , txt
-    """
-    
-    msg_func("bold", "Start in main")
+def msg(msg_type: str, text: str) -> None:
+    """Print colored/bold messages (Linux only; falls back to plain text on Windows)"""
+    if sys.platform == "win32":
+        print(text)
+        return
+
+    colors = {
+        "red": "\033[91m",
+        "blue": "\033[94m",
+        "bold": "\033[1m",
+        "end": "\033[0m",
+    }
+
+    if msg_type == "line":
+        print(colors["blue"] + "=" * 80 + colors["end"])
+    elif msg_type == "red":
+        print(colors["red"] + text + colors["end"])
+    elif msg_type == "blue":
+        print(colors["blue"] + text + colors["end"])
+    elif msg_type == "bold":
+        print(colors["bold"] + text + colors["end"])
+
+
+def parse_opml(filename: str) -> tuple[list[str], list[str]]:
+    """Parse .opml / .xml subscription file"""
     urls = []
-    texts = []
-    infilename, outfilename, tagname = process_cmd_arguments()
-    ext = os.path.splitext(infilename)[-1].lower()
-    
-   #Parse the input file, json or xml, Stage 1
+    titles = []
+
     try:
-        if ext == ".xml":
-            with open(infilename, 'rt') as inputfile:
-                tree = ElementTree.parse(inputfile)
-            for node in tree.findall('.//outline'):
-                url = node.attrib.get('xmlUrl')
-                if url:
-                    urls.append(url)
+        with open(filename, "rt", encoding="utf-8") as f:
+            tree = ElementTree.parse(f)
 
-            for node in tree.findall('.//outline'):
-                text = node.attrib.get('text')
-                if text:
-                    texts.append(text)
+        for node in tree.findall(".//outline"):
+            url = node.attrib.get("xmlUrl")
+            if url:
+                urls.append(url)
 
-            texts.pop(0)
-            
-        elif ext == ".json":
-            
-            with open(infilename, 'rt') as inputfile:
-                data = json.load(inputfile)
+        for node in tree.findall(".//outline"):
+            text = node.attrib.get("text")
+            if text:
+                titles.append(text)
 
-            for mychannel in data:
-                url = mychannel['snippet']['resourceId']['channelId']
-                if  url:
-                        urls.append("https://www.youtube.com/feeds/videos.xml?channel_id="+ url)
-                   
-                text = mychannel['snippet']['title']
-                   
-                if text:
-                    texts.append(text)
-            
-        else:
-            raise Exception("unknown extension")
-            quit()
-        
-    except Exception as error:
-        msg_func("red", "Error: with input file:  {} = {}".format(infilename, error))
-        quit()
-    else:
-      print("Input file {} parsing completed.".format(infilename))
+        # Remove first (usually folder/root) title
+        if titles:
+            titles.pop(0)
+
+    except (FileNotFoundError, PermissionError, ElementTree.ParseError) as e:
+        msg("red", f"Error reading/parsing OPML file '{filename}': {e}")
+        sys.exit(1)
+
+    return urls, titles
 
 
-# Create the output file , Stage 2
+def parse_youtube_json(filename: str) -> tuple[list[str], list[str]]:
+    """Parse YouTube takeout JSON subscriptions file"""
+    urls = []
+    titles = []
+
     try:
-        with open(outfilename, "w") as myoutfile:
-            for i, j in zip(urls, texts):
-                myoutfile.write('{0}  "~{1}"  {2}'.format(i, j, tagname) + '\n')
-    except Exception as error:
-        msg_func("red", "Error: With output file: {} = {}".format(outfilename, error))
-        quit()
+        with open(filename, "rt", encoding="utf-8") as f:
+            data = json.load(f)
+
+        for channel in data:
+            try:
+                channel_id = channel["snippet"]["resourceId"]["channelId"]
+                title = channel["snippet"]["title"]
+
+                urls.append(f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}")
+                titles.append(title)
+            except KeyError:
+                continue  # skip malformed entries
+
+    except (FileNotFoundError, PermissionError, json.JSONDecodeError) as e:
+        msg("red", f"Error reading/parsing JSON file '{filename}': {e}")
+        sys.exit(1)
+
+    return urls, titles
+
+
+def convert_subscriptions(infile: str, outfile: str, tag: str = "youtube") -> None:
+    """Main conversion logic"""
+    msg("bold", "Starting conversion...")
+
+    ext = os.path.splitext(infile)[-1].lower()
+
+    if ext in {".xml", ".opml"}:
+        urls, titles = parse_opml(infile)
+    elif ext == ".json":
+        urls, titles = parse_youtube_json(infile)
     else:
-        print("Output file {} created. tagname {}.".format(outfilename, tagname))
+        msg("red", f"Unsupported file extension: {ext}")
+        sys.exit(1)
+
+    if len(urls) != len(titles):
+        msg("red", f"Warning: number of URLs ({len(urls)}) ≠ titles ({len(titles)})")
+
+    try:
+        with open(outfile, "wt", encoding="utf-8") as f:
+            for url, title in zip(urls, titles):
+                f.write(f'{url}  "~{title}"  {tag}\n')
+    except (PermissionError, OSError) as e:
+        msg("red", f"Failed to write output file '{outfile}': {e}")
+        sys.exit(1)
+
+    msg("bold", f"Done. Created {outfile!r} with {len(urls)} channels (tag: {tag})")
 
 
-def process_cmd_arguments():
-    """Parse the command line arguments"""
-    str_desc = "URL help at: {}".format(__URL__)
-    parser = argparse.ArgumentParser(description=str_desc)
-    parser.add_argument('-v', help='Print version and quit', default=False,
-                        dest='version', action='store_true')
-    parser.add_argument('-i', help='input filename and/or full path',
-                        type=str, dest='infile')
-    parser.add_argument('-o', help='output filename and/or full path, default ./outfile.txt',
-                        type=str, default='outfile.txt', dest='outfile')
-    parser.add_argument('-t', help='tagname,  default = youtube',
-                        type=str, default='youtube', dest='tagname')
+def parse_arguments() -> argparse.Namespace:
+    """Parse command line arguments"""
+    parser = argparse.ArgumentParser(
+        description=f"Convert YouTube subscriptions to newsboat RSS format.  See: {__URL__}"
+    )
+    parser.add_argument(
+        "-v", "--version",
+        action="store_true",
+        help="Show version and exit"
+    )
+    parser.add_argument(
+        "-i", "--infile",
+        help="Input file (.opml/.xml or .json)",
+    )
+    parser.add_argument(
+        "-o", "--outfile",
+        default="outfile.txt",
+        help="Output file (default: ./outfile.txt)",
+    )
+    parser.add_argument(
+        "-t", "--tag",
+        default="youtube",
+        help="Tag to append to each line (default: youtube)",
+    )
+
     args = parser.parse_args()
+
+    # Handle --version early, before requiring infile
     if args.version:
-        msg_func("bold", "Version: " + __VERSION__)
-        msg_func("bold", "Endex")
-        msg_func("line", "")
-        quit()
+        msg("bold", f"Version: {__VERSION__}")
+        msg("bold", "End")
+        msg("line", "")
+        sys.exit(0)
 
-    if args.infile:
-        infilename = args.infile
-    else:
-        msg_func("red", "Error: No input file given")
-        quit()
+    # Now enforce that infile is provided (since version is already handled)
+    if not args.infile:
+        parser.error("the following arguments are required: -i/--infile")
 
-    if args.tagname:
-        tagname = args.tagname
-
-    if args.outfile:
-        outfilename = args.outfile
-
-    return infilename, outfilename, tagname
+    return args
 
 
-def msg_func(myprocess, mytext):
-    """NAME : msg_func
-    DESCRIPTION :prints to screen
-    prints line, text.
-    INPUTS : $1 process name $2 text input
-    PROCESS :[1]  print line 
-    [2] print text  "green , red ,blue "
-    NOTE: only works for linux , for windows just prints text as asni escape codes 
-    did not work in powershell
-    """
-    if platform == 'win32':
-        print(mytext)
-    else:
-        # colours for print
-        blue = '\033[94m'
-        red = '\033[91m'
-        bold = '\033[1m'
-        end = '\033[0m'
-        if myprocess == "line":  # print blue horizontal line of =
-            print(blue + "="*80 + end)
+def main() -> None:
+    """Entry point"""
+    msg("line", "")
+    args = parse_arguments()
 
-        if myprocess == "red":  # print red text
-            print(red + mytext + end)
+    if args.version:
+        msg("bold", f"Version: {__VERSION__}")
+        msg("bold", "End")
+        msg("line", "")
+        sys.exit(0)
 
-        if myprocess == "blue":  # print blue text
-            print(blue + mytext + end)
+    convert_subscriptions(args.infile, args.outfile, args.tag)
 
-        if myprocess == "bold":  # print bold text
-            print(bold + mytext + end)
+    msg("bold", "Finished.")
+    msg("line", "")
 
 
-# =====================MAIN===============================
-if __name__ == '__main__':
-    msg_func("line", "")
-    opml_txt("Start")
-    msg_func("bold", "Endex")
-    msg_func("line", "")
-else:
-    opml_txt("Imported {}".format(__name__))
-# =====================END===============================
+if __name__ == "__main__":
+    main()
